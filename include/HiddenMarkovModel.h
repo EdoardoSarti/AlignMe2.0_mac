@@ -577,19 +577,26 @@ public:
 	{
 		if (tr->i[z] > 0)
 		{
-			if (p7_hmm_DecodeStatetype( tr->st[z]) == "M")
+			std::cout << __FUNCTION__ << " " << tr->i[z] << " " << p7_hmm_DecodeStatetype( tr->st[z]) << tr->k[z] << std::endl;
+			if (strcmp(p7_hmm_DecodeStatetype( tr->st[z]),"M") == 0)
 			{
 				state = 1 + 3*tr->k[z];
+				std::cout << "M" << state << std::endl;
 			}
-			else if (p7_hmm_DecodeStatetype( tr->st[z]) == "I" || p7_hmm_DecodeStatetype( tr->st[z]) == "N" || p7_hmm_DecodeStatetype( tr->st[z]) == "C")
+			else if (strcmp(p7_hmm_DecodeStatetype( tr->st[z]),"I") == 0 || strcmp(p7_hmm_DecodeStatetype( tr->st[z]),"N") == 0)
 			{
 				state = 2 + 3*tr->k[z];
+			}
+			else if (strcmp(p7_hmm_DecodeStatetype( tr->st[z]),"C") == 0)
+			{
+				// THIS and N are wrong, because I didn't integrate the N and C "LOOP" Tstates yet. They will be placed in (0,0) and (last,last) of the T matrix, and all the transition from B to Ms will be in fact transitions from N to B to Ms; whereas all transitions from Ms to E will be transitions from Ms to C to E.
+				state = 3*(M)-1;
 			}
 			else
 			{
 				continue;
 			}
-			HMMP->Vtrace[tr->i[z]-1].push_back( std::make_pair( state, 1.0));  // Double is for generalization to FB (posterior probability of being in that state)
+			HMMP->Vtrace[tr->i[z]].push_back( std::make_pair( state, 1.0));  // Double is for generalization to FB (posterior probability of being in that state)
 		}
 	}
 
@@ -605,7 +612,7 @@ public:
             for (int j=0; j<3*(M)+2; j++)
                 HMMP->TMX[i][j] = -d_inf;
         }
-            
+
 	std::cout << __FUNCTION__ << " TMX Resized: " << HMMP->TMX.size() << std::endl;
         for (int j=0; j<M; j++)
 	{
@@ -634,6 +641,25 @@ public:
         HMMP->TMX[3*M-2][3*M+1] = p7P_TSC(gm, M, p7P_MM);
         HMMP->TMX[3*M-1][3*M+1] = p7P_TSC(gm, M, p7P_IM);
         HMMP->TMX[3*M][3*M+1] = p7P_TSC(gm, M, p7P_DM);
+
+	double accum, dm, md;
+	for (int i=1; i<M-1; i++)
+	{
+		dm = HMMP->TMX[i*3+3][(i+1)*3+1];
+		accum = 0.0;
+		for (int j=i-1; j>0; j--)
+		{
+			md = HMMP->TMX[j*3+1][(j+1)*3+3];
+			HMMP->TMX[j*3+1][(i+1)*3+1] = md + accum + dm;
+			HMMP->TMX[j*3+1][i*3+3] = md + accum;
+
+			accum += HMMP->TMX[j*3+3][(j+1)*3+3];
+			HMMP->TMX[j*3+3][(i+1)*3+1] = accum + dm;
+			HMMP->TMX[j*3+3][i*3+3] = accum;
+		}
+		HMMP->TMX[1][(i+1)*3+1] = md + accum + dm;
+		HMMP->TMX[1][i*3+3] = md + accum;
+	}
 	//-----
         std::vector< char> aa_vec;
 
@@ -656,7 +682,7 @@ public:
             HMMP->EMI[aa_type][0] = 0.0;
             for(unsigned int j=0; j<M; j++)
             {
-		std::cout << __FUNCTION__ << " " << i << " " << aa_type << " " << 3*j+1 << " " << p7P_MSC(gm, j+1, sq->dsq[i+1]) << std::endl;
+//		std::cout << __FUNCTION__ << " " << i << " " << aa_type << " " << 3*j+1 << " " << p7P_MSC(gm, j+1, sq->dsq[i+1]) << std::endl;
 //		std::cout << __FUNCTION__ << " " << i << " " << 3*j+2 << " " << p7P_ISC(gm, j, sq->dsq[i+1]) << std::endl;
                 HMMP->EMI[aa_type][3*j+1] = p7P_MSC(gm, j+1, sq->dsq[i+1]);
 //                HMMP->EMI[aa_type][3*j+2] = p7P_ISC(gm, j, sq->dsq[i+1]);

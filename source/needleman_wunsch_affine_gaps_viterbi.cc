@@ -210,44 +210,47 @@ void NeedlemanWunschAffineGaps::CalculateMatrix()
 			std::cout << __FUNCTION__ << "   " << i << "   " << j << " type(i-1) " << aatypem << " type(i) " << aatype << std::endl;
 
 			// DIAGONAL
+			std::cout << __FUNCTION__ << " DIAGONAL" << std::endl;
 			element = m_Matrix( i -1, j -1); // access previous diagonal (aligned) element
 
 			local_score =  m_Score->operator()( std::make_pair( m_FirstSequence[ i - 1], m_SecondSequence[ j - 1])); // similarity score, note that i is matrix index, matrix has zero in first element, sequence does not, that's why i-1 and j-1 are used here
-			max_value = element.BestSubPathWayScore_PureV( 0, aatype, 0);
+			max_value = element.BestSubPathWayScore_NewV( 0, aatype, 0, m_HMMProfile->Vtrace[i]);
                         max_value.second += local_score;
 			m_Matrix( i, j).AddValue( 0, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 1, aatype, 0);
+			max_value = element.BestSubPathWayScore_NewV( 1, aatype, 0, m_HMMProfile->Vtrace[i]);
                         max_value.second += local_score;
 			m_Matrix( i, j).AddValue( 1, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 2, aatype, 0);
+			max_value = element.BestSubPathWayScore_NewV( 2, aatype, 0, m_HMMProfile->Vtrace[i]);
                         max_value.second += local_score;
 			m_Matrix( i, j).AddValue( 2, max_value);
 
 			// HORIZONTAL
+			std::cout << __FUNCTION__ << " HORIZONTAL" << std::endl;
 			element = m_Matrix( i, j-1);
 
-			max_value = element.BestSubPathWayScore_PureV( 0, aatype, 1);
+			max_value = element.BestSubPathWayScore_NewV( 0, aatype, 1, m_HMMProfile->Vtrace[i]);
                         profiles = MinPerElement( m_SecondSequence[ j].GetProfiles(),m_SecondSequence[ j - 1].GetProfiles());
                         max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 3, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 1, aatype, 1);
+			max_value = element.BestSubPathWayScore_NewV( 1, aatype, 1, m_HMMProfile->Vtrace[i]);
                         max_value.second -= m_GapExtensionPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 4, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 2, aatype, 1);
+			max_value = element.BestSubPathWayScore_NewV( 2, aatype, 1, m_HMMProfile->Vtrace[i]);
                         max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 5, max_value);
 
 			// VERTICAL
+			std::cout << __FUNCTION__ << " VERTICAL" << std::endl;
 			element = m_Matrix( i-1, j);
 
-			max_value = element.BestSubPathWayScore_PureV( 0, aatype, 2);
+			max_value = element.BestSubPathWayScore_NewV( 0, aatype, 2, m_HMMProfile->Vtrace[i]);
                         profiles = MinPerElement( m_FirstSequence[ i].GetProfiles(), m_FirstSequence[ i - 1].GetProfiles());
                         max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 6, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 1, aatype, 2);
+			max_value = element.BestSubPathWayScore_NewV( 1, aatype, 2, m_HMMProfile->Vtrace[i]);
                         max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 7, max_value);
-			max_value = element.BestSubPathWayScore_PureV( 2, aatype, 2);
+			max_value = element.BestSubPathWayScore_NewV( 2, aatype, 2, m_HMMProfile->Vtrace[i]);
                         max_value.second -= m_GapExtensionPenaltyFunction->operator ()( profiles);
 			m_Matrix( i, j).AddValue( 8, max_value);
 
@@ -275,37 +278,37 @@ void NeedlemanWunschAffineGaps::CalculateMatrix()
 		element_3 = m_Matrix( i_last - 1, j);
 		local_score = m_Score->operator()( std::make_pair( m_FirstSequence[ i_last - 1], m_SecondSequence[ j - 1]));
 
-		max_value = element_1.BestSubPathWayScore_PureV( 0, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 0, aatype, 0, m_HMMProfile->Vtrace[j]);
                 max_value.second += local_score;
 		element_ptr->AddValue( 0, max_value);
-		max_value = element_1.BestSubPathWayScore_PureV( 1, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 1, aatype, 0, m_HMMProfile->Vtrace[j]);
                 max_value.second += local_score;
                 element_ptr->AddValue( 1, max_value);
-		max_value = element_1.BestSubPathWayScore_PureV( 2, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 2, aatype, 0, m_HMMProfile->Vtrace[j]);
                 max_value.second += local_score;
                 element_ptr->AddValue( 2, max_value);
 
 		std::cout << __FUNCTION__ << " " << j << std::endl;
-		max_value = element_2.BestSubPathWayScore_PureV( 0, aatype, -1);
+		max_value = element_2.BestSubPathWayScore_NewV( 0, aatype, -1, m_HMMProfile->Vtrace[j]);
 		std::cout << __FUNCTION__ << " " << j << std::endl;
                 max_value.second -= m_TerminiGapOpeningPenalty;
                 element_ptr->AddValue( 3, max_value);
-		max_value = element_2.BestSubPathWayScore_PureV( 1, aatype, -1);
+		max_value = element_2.BestSubPathWayScore_NewV( 1, aatype, -1, m_HMMProfile->Vtrace[j]);
                 max_value.second -= m_TerminiGapExtensionPenalty;
                 element_ptr->AddValue( 4, max_value);
-		max_value = element_2.BestSubPathWayScore_PureV( 2, aatype, -1);
+		max_value = element_2.BestSubPathWayScore_NewV( 2, aatype, -1, m_HMMProfile->Vtrace[j]);
                 max_value.second -= m_TerminiGapOpeningPenalty;
                 element_ptr->AddValue( 5, max_value);
 
 		std::cout << __FUNCTION__ << " " << j << std::endl;
 		profiles = MinPerElement(m_SecondSequence[j].GetProfiles(),m_SecondSequence[j-1].GetProfiles() );
-		max_value = element_3.BestSubPathWayScore_PureV( 0, aatype, 2);
+		max_value = element_3.BestSubPathWayScore_NewV( 0, aatype, 2, m_HMMProfile->Vtrace[j]);
                 max_value.second -= ( *m_GapOpeningPenaltyFunction)( profiles);
                 element_ptr->AddValue( 6, max_value);
-		max_value = element_3.BestSubPathWayScore_PureV( 1, aatype, 2);
+		max_value = element_3.BestSubPathWayScore_NewV( 1, aatype, 2, m_HMMProfile->Vtrace[j]);
                 max_value.second -= ( *m_GapOpeningPenaltyFunction)( profiles);
                 element_ptr->AddValue( 7, max_value);
-		max_value = element_3.BestSubPathWayScore_PureV( 2, aatype, 2);
+		max_value = element_3.BestSubPathWayScore_NewV( 2, aatype, 2, m_HMMProfile->Vtrace[j]);
                 max_value.second -= ( *m_GapExtensionPenaltyFunction)( profiles);
                 element_ptr->AddValue( 8, max_value);
 
@@ -325,35 +328,35 @@ void NeedlemanWunschAffineGaps::CalculateMatrix()
 		element_3 = m_Matrix( i - 1, j_last);
 		local_score = m_Score->operator()( std::make_pair( m_FirstSequence[ i - 1], m_SecondSequence[ j_last - 1]));
 
-		max_value = element_1.BestSubPathWayScore_PureV( 0, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 0, aatype, 0, m_HMMProfile->Vtrace[j_last]);
                 max_value.second += local_score; 
                 element_ptr->AddValue( 0, max_value);
-		max_value = element_1.BestSubPathWayScore_PureV( 1, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 1, aatype, 0, m_HMMProfile->Vtrace[j_last]);
                 max_value.second += local_score; 
                 element_ptr->AddValue( 1, max_value);
-		max_value = element_1.BestSubPathWayScore_PureV( 2, aatype, 0);
+		max_value = element_1.BestSubPathWayScore_NewV( 2, aatype, 0, m_HMMProfile->Vtrace[j_last]);
                 max_value.second += local_score; 
                 element_ptr->AddValue( 2, max_value);
 
                 profiles = MinPerElement(m_FirstSequence[ i].GetProfiles(),m_FirstSequence[ i - 1].GetProfiles());
-		max_value = element_2.BestSubPathWayScore_PureV( 0, aatype, 1);
+		max_value = element_2.BestSubPathWayScore_NewV( 0, aatype, 1, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
                 element_ptr->AddValue( 3, max_value);
-		max_value = element_2.BestSubPathWayScore_PureV( 1, aatype, 1);
+		max_value = element_2.BestSubPathWayScore_NewV( 1, aatype, 1, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_GapExtensionPenaltyFunction->operator ()( profiles);
                 element_ptr->AddValue( 4, max_value);
-		max_value = element_2.BestSubPathWayScore_PureV( 2, aatype, 1);
+		max_value = element_2.BestSubPathWayScore_NewV( 2, aatype, 1, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_GapOpeningPenaltyFunction->operator ()( profiles);
                 element_ptr->AddValue( 5, max_value);
 
 		
-		max_value = element_3.BestSubPathWayScore_PureV( 0, aatype, -2);
+		max_value = element_3.BestSubPathWayScore_NewV( 0, aatype, -2, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_TerminiGapOpeningPenalty;
                 element_ptr->AddValue( 6, max_value);
-		max_value = element_3.BestSubPathWayScore_PureV( 1, aatype, -2);
+		max_value = element_3.BestSubPathWayScore_NewV( 1, aatype, -2, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_TerminiGapOpeningPenalty;
                 element_ptr->AddValue( 7, max_value);
-		max_value = element_3.BestSubPathWayScore_PureV( 2, aatype, -2);
+		max_value = element_3.BestSubPathWayScore_NewV( 2, aatype, -2, m_HMMProfile->Vtrace[j_last]);
                 max_value.second -= m_TerminiGapExtensionPenalty;
                 element_ptr->AddValue( 8, max_value);
 	}
@@ -366,41 +369,41 @@ void NeedlemanWunschAffineGaps::CalculateMatrix()
 	element_3     = m_Matrix( m_Matrix.GetNumberOfRows() -1 -1, m_Matrix.GetNumberOfColumns() -1);
 	local_score   = m_Score->operator()( std::make_pair( m_FirstSequence[  m_Matrix.GetNumberOfRows() -1 -1], m_SecondSequence[ m_Matrix.GetNumberOfColumns()-1 - 1]));
 
-	max_value = element_1.BestSubPathWayScore_PureV( 0, aatype, 0);
+	max_value = element_1.BestSubPathWayScore_NewV( 0, aatype, 0, m_HMMProfile->Vtrace[j_last]);
         max_value.second += local_score; 
         element_ptr->AddValue( 0, max_value);
 
-	max_value = element_1.BestSubPathWayScore_PureV( 1, aatype, 0);
+	max_value = element_1.BestSubPathWayScore_NewV( 1, aatype, 0, m_HMMProfile->Vtrace[j_last]);
         max_value.second += local_score; 
         element_ptr->AddValue( 1, max_value);
 
-	max_value = element_1.BestSubPathWayScore_PureV( 2, aatype, 0);
+	max_value = element_1.BestSubPathWayScore_NewV( 2, aatype, 0, m_HMMProfile->Vtrace[j_last]);
         max_value.second += local_score; 
         element_ptr->AddValue( 2, max_value);
 
 
-	max_value = element_2.BestSubPathWayScore_PureV( 0, aatype, -1);
+	max_value = element_2.BestSubPathWayScore_NewV( 0, aatype, -1, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapOpeningPenalty;
         element_ptr->AddValue( 3, max_value);
 
-	max_value = element_2.BestSubPathWayScore_PureV( 1, aatype, -1);
+	max_value = element_2.BestSubPathWayScore_NewV( 1, aatype, -1, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapExtensionPenalty;
         element_ptr->AddValue( 4, max_value);
 
-	max_value = element_2.BestSubPathWayScore_PureV( 2, aatype, -1);
+	max_value = element_2.BestSubPathWayScore_NewV( 2, aatype, -1, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapOpeningPenalty;
         element_ptr->AddValue( 5, max_value);
 
 
-	max_value = element_3.BestSubPathWayScore_PureV( 0, aatype, -2);
+	max_value = element_3.BestSubPathWayScore_NewV( 0, aatype, -2, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapOpeningPenalty;
         element_ptr->AddValue( 6, max_value);
 
-	max_value = element_3.BestSubPathWayScore_PureV( 1, aatype, -2);
+	max_value = element_3.BestSubPathWayScore_NewV( 1, aatype, -2, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapOpeningPenalty;
         element_ptr->AddValue( 7, max_value);
 
-	max_value = element_3.BestSubPathWayScore_PureV( 2, aatype, -2);
+	max_value = element_3.BestSubPathWayScore_NewV( 2, aatype, -2, m_HMMProfile->Vtrace[j_last]);
         max_value.second -= m_TerminiGapExtensionPenalty;
         element_ptr->AddValue( 8, max_value);
 

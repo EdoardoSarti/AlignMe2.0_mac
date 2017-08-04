@@ -314,6 +314,7 @@ public:
 		bool last_row = false;
 		bool last_column = false;
 
+		double temp, bestemp;
 
 		if(CURRENT_PATH_WAY_INDEX != 0)   // Because Insertion scores are put to 0 (are equal to null model)
 		{
@@ -343,19 +344,22 @@ public:
 		int iev[3];
 		if(CURRENT_PATH_WAY_INDEX == 0)
 		{
-			mev[0] = 1;
-			mev[1] = 0;
-			mev[2] = 2;
+			iev[0] = 1;
+			iev[1] = 0;
+			iev[2] = 2;
 		}
 		else
 		{
-			mev[0] = -1;
-			mev[1] = -1;
-			mev[2] = -1;
+			iev[0] = -1;
+			iev[1] = -1;
+			iev[2] = -1;
 		}
 
-
+		int *ev;
+		int bestq;
 		best_new_prior = m_null_prior;
+		std::cout << "VECTOR SIZE " << Vt_el.size() << std::endl;
+
 		for( int i = start; i < end; ++i)
 		{
 			double contribution = 0.0;
@@ -367,32 +371,78 @@ public:
 //				for(std::vector < std::pair< int, int> >::const_iterator it = (*m_pMMX[abs(CURRENT_PATH_WAY_INDEX)]).begin(); it != (*m_pMMX[abs(CURRENT_PATH_WAY_INDEX)]).end(); ++it)
 				for (std::vector < std::pair < int, double > >::iterator iv = Vt_el.begin(); iv != Vt_el.end(); ++iv)
 				{
+					std::cout << "endpoint " << iv->first << std::endl;
 					if (iv->first < 4)
 					{
 						if ((iv->first == 1 && CURRENT_PATH_WAY_INDEX == 0) || (iv->first == 2 && CURRENT_PATH_WAY_INDEX == 1))
 						{
+							std::cout << "staring " << iv->first - 1 << " TMX " << m_pTMX->at(iv->first - 1)[iv->first] << std::endl;
 							new_prior[iv->first] = m_Prior[i][iv->first - 1] + m_pTMX->at(iv->first - 1)[iv->first];
 						}
 						else if (iv->first == 3 && CURRENT_PATH_WAY_INDEX == 2)
 						{
+							std::cout << "no change" << std::endl;
 							new_prior = m_Prior[i];
 						}
 						continue;
 					}
 
-//					std::cout << k << " " << k+c[MAIN_PATH_WAY_INDEX] << " " << m_pTMX->at(k)[k+c[MAIN_PATH_WAY_INDEX]] << std::endl;
+					if (iv->first % 3 == 1)  // CURRENT HMM STATE == M
+					{
+						ev = &mev[0];
+						new_prior[iv->first] = m_Prior[i][iv->first - ev[MAIN_PATH_WAY_INDEX]] + m_pTMX->at(iv->first - ev[MAIN_PATH_WAY_INDEX])[iv->first];
+						std::cout << new_prior[iv->first] << " " << m_Prior[i][iv->first - ev[MAIN_PATH_WAY_INDEX - 3]] << std::endl;
+
+						bestq = -1;
+						if (CURRENT_PATH_WAY_INDEX != 1 && MAIN_PATH_WAY_INDEX != 1)
+						{
+							bestemp = new_prior[iv->first];
+							for (int q = iv->first - ev[MAIN_PATH_WAY_INDEX] -3; q > 0; q -= 3)
+							{
+								temp = m_Prior[i][q] + m_pTMX->at(q)[iv->first];
+								if (temp > bestemp)
+								{
+									bestemp = temp;
+									bestq = q;
+								}
+							}
+							temp = m_Prior[i][0] + m_pTMX->at(0)[iv->first];
+							if (temp > bestemp)
+							{
+								bestemp = temp;
+								bestq = 0;
+							}
+							new_prior[iv->first] = bestemp;
+						}
+						std::cout << new_prior[iv->first] << " BEST q: " << bestq << " VALUE " << bestemp << std::endl;
+					}
+					else if (iv->first % 3 == 2)   // CURRENT HMM STATE == I
+					{
+						ev = &iev[0];
+						new_prior[iv->first] = m_Prior[i][iv->first - ev[MAIN_PATH_WAY_INDEX]] + m_pTMX->at(iv->first - ev[MAIN_PATH_WAY_INDEX])[iv->first];
+					}
+
+//					std::cout << m_pTMX->size() << std::endl;
+//					std::cout << iv->first << " " << iv->first - ev[MAIN_PATH_WAY_INDEX] << " " << m_pTMX->at(iv->first - ev[MAIN_PATH_WAY_INDEX])[iv->first] << std::endl;
 //					new_prior[k+c[MAIN_PATH_WAY_INDEX]] = logsum(new_prior[k+c[MAIN_PATH_WAY_INDEX]], m_Prior[i][k] + m_pTMX->at(k)[k+c[MAIN_PATH_WAY_INDEX]]);
 					
-					new_prior[iv->first] = m_Prior[i][iv->first - mev[MAIN_PATH_WAY_INDEX]] + m_pTMX->at(iv->first - mev[MAIN_PATH_WAY_INDEX])[iv->first];
-					if (iv->first % 3 == 1 && iv->first < M-1)
-						new_prior[iv->first] = logsum(new_prior[iv->first], m_Prior[i][0] + m_pTMX->at(0)[iv->first]);
+//					new_prior[iv->first] = m_Prior[i][iv->first - ev[MAIN_PATH_WAY_INDEX]] + m_pTMX->at(iv->first - ev[MAIN_PATH_WAY_INDEX])[iv->first];
+
+					// VERY QUESTIONABLE LINES: WHY A SUM??___________
+//					if (iv->first % 3 == 1 && iv->first < M-1)
+//						new_prior[iv->first] = logsum(new_prior[iv->first], m_Prior[i][0] + m_pTMX->at(0)[iv->first]);
+					// ________________________________________________
+
+
 					contribution += iv->second * exp(new_prior[iv->first])/(1.0 + exp(new_prior[iv->first]));
+					std::cout << "Contribution " << contribution << std::endl;
 				}
 			}
 			else
 			{
 				new_prior = m_Prior[i];
 			}
+			std::cout << "Contribution from PathWay" << m_AffinePathWays[i] << std::endl;
 			contribution += m_AffinePathWays[i];
 			if( contribution > best)
 			{

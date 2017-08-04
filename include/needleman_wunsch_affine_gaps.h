@@ -1,5 +1,3 @@
-/////////////////////////////////////////////////////////////////////////
-//!
 //  This file is part of the AlignMe program
 //
 //  Copyright (C) 2010 by Rene Staritzbichler, Kamil Khafizov, Marcus Stamm

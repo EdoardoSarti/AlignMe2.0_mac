@@ -1,21 +1,26 @@
 CLUSTAL W formatted alignment obtained with AlignMe 1.1
 
-MYG_ESCGI____   VLSDAEWQLVLNIWAKVEADVA----GHGQDILIRLFKGH---PETLEKFDKFKHLKTEA
-MYG_ESCGI____   VLSDAEWQLVLNIWAKV----EADVAGHGQDILIRL---FKGHPETLEKFDKF-------
-                *****************         **********       **********       
-
-
-MYG_ESCGI____   EMKA---SEDLKK------HGNTVLTAL-GGILKKK-G--HHEAELKPLAQS-----HAT
-MYG_ESCGI____   --KHLKTEAEMKASEDLKKHGNTVLTALGG-----ILKKKGHHEAELKPL-AQSHATKH-
-                  *        *       ********* *           *                  
-
-
-MYG_ESCGI____   KHKIPIKYLEFISD------AIIHVLHSRHPGDFGA-----DAQAAMNKALELF--RKDI
-MYG_ESCGI____   ---KIPIKYLEF-ISDAIIHV-L----HSRHPGDFGADAQAAM-N----K--ALELFRKD
+MYG_ESCGI____   VLSDAEWQLVLNIWAKVEADVAGHGQDILIRLFKGHPETLEKFDKFKHLKTEAEMKASED
+MYG_ESCGI____   ------------------------------------------------------------
                                                                             
 
 
-MYG_ESCGI____   AAKYK------ELGFQG
-MYG_ESCGI____   IAAKYKELGFQG-----
-                 *               
+MYG_ESCGI____   LKKHGNTVLTALGGILKKKGHHEAELKPLAQSHATKHKIPIKYLEFISDAIIHVLHSRHP
+MYG_ESCGI____   --------------------------------------------VLSDAEWQLVLNIWAK
+                                                                     **     
+
+
+MYG_ESCGI____   GDFGADAQAAMNKALELFRKDIAAKYK---------------------------------
+MYG_ESCGI____   VEADVAGHGQDILIRLFKGHPETLEKFDKFKHLKTEAEMKASEDLKKHGNTVLTALGGIL
+                                                                            
+
+
+MYG_ESCGI____   ------------------------------------------------------------
+MYG_ESCGI____   KKKGHHEAELKPLAQSHATKHKIPIKYLEFISDAIIHVLHSRHPGDFGADAQAAMNKALE
+                                                                            
+
+
+MYG_ESCGI____   -----------ELGFQG
+MYG_ESCGI____   LFRKDIAAKYKELGFQG
+                           ******
 
